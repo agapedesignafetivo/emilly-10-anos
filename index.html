@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* =================================================
+   CONFIGURAÇÕES GERAIS DA PÁGINA
+================================================= */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+}
+
+/* =================================================
+   FUNDO DA PÁGINA (DESKTOP)
+   Centraliza o convite como se fosse um celular
+================================================= */
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =================================================
+   PALCO DO CONVITE (FORMATO 9:16)
+================================================= */
+#convite {
+  position: relative;
+
+  /* 🔒 trava formato vertical */
+  aspect-ratio: 9 / 16;
+
+  /* 📱 largura máxima de celular */
+  width: 100%;
+  max-width: 390px;
+
+  /* 🖥️ nunca ultrapassa a altura da tela */
+  max-height: 100vh;
+
+  background: black;
+  overflow: hidden;
+}
+
+/* =================================================
+   CAPA INICIAL (CLIQUE PARA INICIAR)
+================================================= */
+#capa {
+  position: absolute; /* ⬅️ antes era fixed */
+  inset: 0;
+  z-index: 10;
+  cursor: pointer;
+}
+
+#capa img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* =================================================
+   VÍDEO DE FUNDO
+================================================= */
+#video {
+  position: absolute; /* ⬅️ antes era fixed */
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* =================================================
+   BOTÕES INVISÍVEIS (ÁREAS DE CLIQUE)
+================================================= */
+.btn {
+  position: fixed;
+
+  /* 🔵 TAMANHO DA ÁREA DE CLIQUE
+     AUMENTE se estiver difícil clicar
+     DIMINUA se estiver pegando área errada */
+  width: 70px;
+  height: 70px;
+
+  /* 🔼🔽 POSIÇÃO VERTICAL (SUBIR / DESCER TODOS)
+     número menor = mais pra CIMA
+     número maior = mais pra BAIXO */
+  top: 62%;
+
+  /* ⚠️ NÃO MEXER
+     isso centraliza a área exatamente no ponto */
+  transform: translate(-50%, -50%);
+
+  z-index: 20;
+  pointer-events: auto;
+}
+
+/* =================================================
+   AJUSTES AUTOMÁTICOS PARA TELAS MAIORES
+================================================= */
+@media (min-width: 600px) {
+  .btn {
+    width: 90px;
+    height: 90px;
+    top: 57%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .btn {
+    width: 100px;
+    height: 100px;
+    top: 58%;
+  }
+}
+
+/* =================================================
+   POPUP DE PRESENTES (TELA CHEIA)
+================================================= */
+#popup {
+  display: none;
+  position: fixed; /* ✔️ popup continua fixed */
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 50;
+}
+
+#popup img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* =================================================
+   BOTÃO VOLTAR
+================================================= */
+#voltar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 30px;
+
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+
+  background: white;
+  color: #7a3b47;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 26px;
+  font-weight: bold;
+  cursor: pointer;
+
+  z-index: 60;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+</style>
+</head>
+
+<body>
+
+<div id="convite">
+
+  <!-- =========================
+       CAPA
+  ========================= -->
+  <div id="capa">
+    <img src="capa.png">
+  </div>
+
+  <!-- =========================
+       VÍDEO
+  ========================= -->
+  <video id="video" playsinline webkit-playsinline muted>
+    <source src="https://agapedesignafetivo.com.br/wp-content/uploads/2026/02/videoteste.mp4" type="video/mp4">
+  </video>
+
+  <!-- =========================
+       MÚSICA
+  ========================= -->
+  <audio id="musica" loop>
+    <source src="musica.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- 🔘 Confirmar presença -->
+  <a href="https://wa.me/5548996612459?text=Ol%C3%A1%2C%20gostaria%20de%20confirmar%20minha%20presen%C3%A7a%20na%20festa%20da%20Emilly!"
+     class="btn"
+     style="left:14%;">
+  </a>
+
+  <!-- 📍 Local -->
+  <a href="https://maps.app.goo.gl/ex7rRhNUrPBKwxVB8"
+     class="btn"
+     style="left:37%;">
+  </a>
+
+  <!-- 🎁 Presente -->
+  <div id="btn-presente"
+       class="btn"
+       style="left:60%;">
+  </div>
+
+</div>
+
+<!-- =================================================
+     POPUP DE PRESENTES
+================================================= -->
+<div id="popup">
+  <div id="voltar">←</div>
+  <img src="sugestao.png">
+</div>
+
+<script>
+/* =================================================
+   VARIÁVEIS
+================================================= */
+const capa = document.getElementById('capa');
+const video = document.getElementById('video');
+const musica = document.getElementById('musica');
+const btnPresente = document.getElementById('btn-presente');
+const popup = document.getElementById('popup');
+const voltar = document.getElementById('voltar');
+
+let audioLiberado = false;
+let posicaoVideo = 0;
+
+/* =================================================
+   INICIAR CONVITE
+================================================= */
+capa.addEventListener('click', () => {
+  capa.style.display = 'none';
+  video.play().then(() => {
+    if (!audioLiberado) {
+      musica.play().catch(() => {});
+      audioLiberado = true;
+    }
+  });
+});
+
+/* =================================================
+   SALVAR POSIÇÃO DO VÍDEO
+================================================= */
+setInterval(() => {
+  if (!video.paused && video.duration) {
+    posicaoVideo = video.currentTime;
+  }
+}, 1000);
+
+/* =================================================
+   POPUP DE PRESENTES
+================================================= */
+btnPresente.addEventListener('click', () => {
+  popup.style.display = 'block';
+  voltar.style.display = 'flex';
+  video.pause();
+});
+
+voltar.addEventListener('click', () => {
+  popup.style.display = 'none';
+  voltar.style.display = 'none';
+  video.currentTime = posicaoVideo;
+  video.play();
+});
+
+// 1. Bloquear o botão direito do mouse
+  document.addEventListener('contextmenu', event => event.preventDefault());
+
+  // 2. Bloquear atalhos de teclado (Ctrl+U, Ctrl+S, F12, etc.)
+  document.addEventListener('keydown', function (event) {
+    // Tecla 'u' (code 85) + CTRL
+    if (event.ctrlKey && event.keyCode === 85) {
+      event.preventDefault();
+    }
+    // Tecla 's' (code 83) + CTRL (evita salvar a página)
+    if (event.ctrlKey && event.keyCode === 83) {
+      event.preventDefault();
+    }
+    // Tecla F12 (code 123)
+    if (event.keyCode === 123) {
+      event.preventDefault();
+    }
+  });
+
+
+</script>
+
+</body>
+</html>
